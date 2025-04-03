@@ -1,6 +1,8 @@
 import { test } from '@playwright/test';
 import { LoginPage } from '../src/login.page';
 import { RegisterPanel } from '../src/register.panel';
+import { AccountServicesPanel } from '../src/account-services.panel';
+import { AccountType, OpenAccountPanel } from '../src/open-account.panel';
 
 test.beforeEach(async ({ page }) => {
   await test.step('Navigate to login page', async () => {
@@ -17,26 +19,23 @@ test.afterEach(async ({ page }) => {
   });
 });
 
-test.describe('Login Tests', () => {
-  test('Login with invalid credentials', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    await test.step('Attempt login with invalid credentials', async () => {
-      await loginPage.loginWithCredentials('invalidUser', 'invalidPassword');
-    });
-  });
-
-  test('Register a new user', async ({ page }) => {
+test.describe('Make some transactions', () => {
+  test('Register a new account', async ({ page }) => {
     const loginPage = new LoginPage(page);
     let register: RegisterPanel;
+    let accountServices: AccountServicesPanel;
+    let openNewAccount: OpenAccountPanel;
     await test.step('Register as a new user', async () => {
       register = await loginPage.registerAsNewUser();
       await register.fillForm();
       await register.clickRegister();
+      accountServices = await register.verifyUserHasBeenCreated();
     });
-
-    await test.step('Verify user has been created', async () => {
-      await register.verifyUserHasBeenCreated();
+    await test.step('Open a new bank account', async () => {
+      openNewAccount = await accountServices.clickOpenNewAccount();
+      await openNewAccount.openNewAccount(AccountType.SAVINGS);
+      const newAccountId = await openNewAccount.getNewAccountId();
+      await openNewAccount.validateNewAccountCreation(newAccountId);
     });
   });
 });

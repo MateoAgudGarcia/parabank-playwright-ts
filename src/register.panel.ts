@@ -1,6 +1,7 @@
-import { test, type Locator, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { ParabankPage } from './parabank.page';
 import { faker } from '@faker-js/faker';
+import { AccountServicesPanel } from './account-services.panel';
 
 export class RegisterPanel extends ParabankPage {
   readonly firstNameInput: Locator;
@@ -14,10 +15,13 @@ export class RegisterPanel extends ParabankPage {
   readonly phoneNumberInput: Locator;
   readonly ssnInput: Locator;
   readonly usernameInput: Locator;
+  readonly username: string;
   readonly passwordInput: Locator;
   readonly repeatedPasswordInput: Locator;
   readonly submitButton: Locator;
   readonly registerButton: Locator;
+  readonly title: Locator;
+  readonly message: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -54,8 +58,14 @@ export class RegisterPanel extends ParabankPage {
     );
     this.submitButton = this.rightPanel.locator('input[type="submit"]');
     this.registerButton = this.rightPanel.locator('input[value="Register"]');
+    this.title = this.rightPanel.locator('h1.title');
+    this.message = this.rightPanel.locator('p');
     this.firstName = faker.person.firstName();
     this.lastName = faker.person.lastName();
+    this.username = faker.internet.username({
+      firstName: this.firstName,
+      lastName: this.lastName,
+    });
   }
 
   /**
@@ -149,12 +159,8 @@ export class RegisterPanel extends ParabankPage {
    * @returns {Promise<void>}
    */
   private async fillUsername(): Promise<void> {
-    const username = faker.internet.username({
-      firstName: this.firstName,
-      lastName: this.lastName,
-    });
-    await test.step(`Fill username: "${username}"`, async () => {
-      await this.usernameInput.fill(username);
+    await test.step(`Fill username: "${this.username}"`, async () => {
+      await this.usernameInput.fill(this.username);
     });
   }
 
@@ -198,5 +204,21 @@ export class RegisterPanel extends ParabankPage {
       await this.registerButton.waitFor({ state: 'visible' });
       await this.registerButton.click();
     });
+  }
+
+  /**
+   * Clicks the submit button to submit the registration form.
+   */
+  async verifyUserHasBeenCreated(): Promise<AccountServicesPanel> {
+    await test.step(`Verify user has been created with username: ${this.username}`, async () => {
+      await this.title.waitFor({ state: 'visible' });
+      await this.message.waitFor({ state: 'visible' });
+
+      await expect(this.title).toHaveText(`Welcome ${this.username}`);
+      await expect(this.message).toHaveText(
+        'Your account was created successfully. You are now logged in.',
+      );
+    });
+    return new AccountServicesPanel(this.page);
   }
 }
