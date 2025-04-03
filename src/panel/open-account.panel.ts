@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
-import { ParabankPage } from './parabank.page';
+import { ParabankPage } from '..';
 
 export enum AccountType {
   CHECKING = 'CHECKING',

@@ -1,7 +1,6 @@
 import { test, type Locator, type Page } from '@playwright/test';
-import { ParabankPage } from './parabank.page';
-import { RegisterPanel } from './register.panel';
-
+import { ParabankPage } from '../parabank.page';
+import { RegisterPanel } from '../panel';
 export class LoginPage extends ParabankPage {
   readonly page: Page;
   readonly username: Locator;

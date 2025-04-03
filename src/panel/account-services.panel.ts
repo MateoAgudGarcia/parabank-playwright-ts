@@ -1,6 +1,6 @@
 import { type Locator, type Page, test } from '@playwright/test';
-import { ParabankPage } from './parabank.page';
-import { OpenAccountPanel } from './open-account.panel';
+import { ParabankPage } from '..';
+import { OpenAccountPanel, TransferFundsPanel } from '.';
 
 export class AccountServicesPanel extends ParabankPage {
   readonly accountServices: Locator;
@@ -64,10 +64,11 @@ export class AccountServicesPanel extends ParabankPage {
   /**
    * Clicks on the "Transfer Funds" link.
    */
-  async clickTransferFunds(): Promise<void> {
+  async clickTransferFunds(): Promise<TransferFundsPanel> {
     await test.step('Click on "Transfer Funds" link', async () => {
       await this.transferFundsLink.click();
     });
+    return new TransferFundsPanel(this.page);
   }
 
   /**

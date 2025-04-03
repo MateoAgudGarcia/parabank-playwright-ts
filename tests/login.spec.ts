@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { LoginPage } from '../src/login.page';
-import { RegisterPanel } from '../src/register.panel';
+import { LoginPage } from '../src/pages';
+import { RegisterPanel } from '../src/panel';
 
 test.beforeEach(async ({ page }) => {
   await test.step('Navigate to login page', async () => {
